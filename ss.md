@@ -1,152 +1,88 @@
-# Informe sobre el Fast Algorithm (Exponenciación rápida)
+# Informe: Fast Algorithm
 
-## Introducción
+## 1. Contextualización
+El **Fast Algorithm** presentado implementa la multiplicación de dos números enteros de manera recursiva utilizando la técnica de **recursión de cola** (*tail recursion*).  
+El método descompone el problema de multiplicar `a × b` en sumas repetidas de `a`, reduciendo en cada llamada el valor de `b` hasta que este llega a cero.
 
-El **Fast Algorithm** (o algoritmo de exponenciación rápida) es una técnica eficiente para calcular potencias de la forma:
-
-\[
-a^n, \quad a \in \mathbb{R}, \; n \in \mathbb{N}
-\]
-
-Este algoritmo se basa en la descomposición binaria del exponente, reduciendo el número de multiplicaciones necesarias.  
-En lugar de realizar \(n\) multiplicaciones, se logra una complejidad de:
-
-\[
-\mathcal{O}(\log n)
-\]
+Este enfoque, aunque menos eficiente que la multiplicación directa del lenguaje, es útil para comprender cómo funcionan las **funciones recursivas** y el manejo de la **pila de ejecución**.
 
 ---
 
-## Definición del Algoritmo
+## 2. Código
 
-El algoritmo recursivo puede definirse de la siguiente manera:
+```scala
+/**
+* Clase del algoritmo Fast
+*/
+package taller1
+import scala.annotation.tailrec
+
+class FastAlgorithm  {
+  def multiply(a:Int, b:Int): Int = {
+    @tailrec
+    def multiplyAux(a:Int, b:Int, acc:Int):Int = {
+      if (b == 0) acc
+      else multiplyAux(a, b - 1, acc + a)
+    }
+    multiplyAux(a, b, 0)
+  }
+}
+```
+
+---
+
+## 3. Explicación matemática
+
+El algoritmo implementa la siguiente definición recursiva de la multiplicación:
 
 \[
-\text{FastExp}(a, n) =
+a \times b =
 \begin{cases}
-1, & \text{si } n = 0 \\
-a \cdot \text{FastExp}(a, n-1), & \text{si } n \text{ es impar} \\
-\left(\text{FastExp}(a, \tfrac{n}{2})\right)^2, & \text{si } n \text{ es par}
+0 & \text{si } b = 0, \\
+a + (a \times (b - 1)) & \text{si } b > 0.
 \end{cases}
 \]
 
----
-
-## Ejemplo de Ejecución
-
-Queremos calcular:
+En el código, la variable `acc` actúa como acumulador para almacenar el resultado parcial de las sumas:
 
 \[
-3^5
+\text{multiplyAux}(a, b, acc) =
+\begin{cases}
+acc & \text{si } b = 0, \\
+\text{multiplyAux}(a, b - 1, acc + a) & \text{si } b > 0.
+\end{cases}
 \]
 
-1. Como \(n = 5\) es impar:
-   \[
-   3^5 = 3 \cdot \text{FastExp}(3, 4)
-   \]
+Ejemplo de cálculo:
 
-2. Ahora \(n = 4\) es par:
-   \[
-   \text{FastExp}(3, 4) = \left(\text{FastExp}(3, 2)\right)^2
-   \]
-
-3. Luego \(n = 2\) es par:
-   \[
-   \text{FastExp}(3, 2) = \left(\text{FastExp}(3, 1)\right)^2
-   \]
-
-4. Finalmente \(n = 1\) es impar:
-   \[
-   \text{FastExp}(3, 1) = 3 \cdot \text{FastExp}(3, 0)
-   \]
-
-5. Caso base:
-   \[
-   \text{FastExp}(3, 0) = 1
-   \]
-
----
-
-## Estado de la Pila de Llamados
-
-A continuación se muestra el estado de la pila de llamados en cada paso utilizando **Mermaid**.
-
-### Paso 1: Llamada inicial
-```mermaid
-stack
-  direction BT
-  FastExp(3,5)
-```
-
-### Paso 2: Expansión con \(n=5\) (impar)
-```mermaid
-stack
-  direction BT
-  FastExp(3,4)
-  FastExp(3,5)
-```
-
-### Paso 3: Expansión con \(n=4\) (par)
-```mermaid
-stack
-  direction BT
-  FastExp(3,2)
-  FastExp(3,4)
-  FastExp(3,5)
-```
-
-### Paso 4: Expansión con \(n=2\) (par)
-```mermaid
-stack
-  direction BT
-  FastExp(3,1)
-  FastExp(3,2)
-  FastExp(3,4)
-  FastExp(3,5)
-```
-
-### Paso 5: Expansión con \(n=1\) (impar)
-```mermaid
-stack
-  direction BT
-  FastExp(3,0)
-  FastExp(3,1)
-  FastExp(3,2)
-  FastExp(3,4)
-  FastExp(3,5)
-```
-
-### Paso 6: Caso base
-```mermaid
-stack
-  direction BT
-  FastExp(3,0) = 1
-```
-
----
-
-## Verificación Matemática
-
-Comprobamos el resultado:
+Si queremos calcular \( 3 \times 4 \):
 
 \[
 \begin{align}
-3^5 &= 3 \cdot (3^4) \\
-&= 3 \cdot \big((3^2)^2\big) \\
-&= 3 \cdot \big((9)^2\big) \\
-&= 3 \cdot 81 \\
-&= 243
+\text{multiplyAux}(3, 4, 0) &= \text{multiplyAux}(3, 3, 3) \\
+&= \text{multiplyAux}(3, 2, 6) \\
+&= \text{multiplyAux}(3, 1, 9) \\
+&= \text{multiplyAux}(3, 0, 12) \\
+&= 12
 \end{align}
 \]
 
-El algoritmo obtiene el resultado correcto, y la recursión termina en el caso base \(n=0\).
+---
+
+## 4. Estado de la pila (Mermaid)
+
+Cuando se ejecuta la llamada recursiva para calcular \( 3 \times 4 \), el estado de la pila evoluciona de la siguiente manera:
+
+```mermaid
+graph TD
+    A0["multiplyAux(3, 4, 0)"] --> A1["multiplyAux(3, 3, 3)"]
+    A1 --> A2["multiplyAux(3, 2, 6)"]
+    A2 --> A3["multiplyAux(3, 1, 9)"]
+    A3 --> A4["multiplyAux(3, 0, 12)"]
+    A4 --> R["Resultado = 12"]
+```
+
+Este diagrama muestra cómo cada llamada recursiva reduce el valor de `b` y acumula el resultado en `acc` hasta llegar al caso base, donde se retorna el valor final.
 
 ---
 
-## Conclusión
-
-- El **Fast Algorithm** reduce la complejidad de \(\mathcal{O}(n)\) a \(\mathcal{O}(\log n)\).
-- El proceso recursivo se entiende mejor visualizando la **pila de llamados**.
-- La corrección se demuestra con **notación matemática clara** y el seguimiento del caso base.
-
----
