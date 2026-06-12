@@ -1,4 +1,4 @@
-
+```mermaid
 classDiagram
 
 class Cliente{
@@ -85,3 +85,4 @@ Cliente "1" --> "1" HistorialCompra
 
 Carrito "1" *-- "*" Producto
 Producto "*" -- "*" Descuento
+```
